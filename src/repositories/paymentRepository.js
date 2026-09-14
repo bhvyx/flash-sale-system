@@ -1,10 +1,30 @@
 const pool = require("../db");
 
-async function processPayment(orderId, paymentOutcome) {
+async function processPayment(orderId, paymentOutcome, idempotencyKey) {
   const client = await pool.connect();
 
   try {
     await client.query("BEGIN");
+
+    const existingPaymentResult = await client.query(
+      `SELECT *
+             FROM payments
+             WHERE idempotency_key = $1
+             FOR UPDATE`,
+      [idempotencyKey],
+    );
+
+    const existingPayment = existingPaymentResult.rows[0];
+
+    if (existingPayment) {
+      if (existingPayment.order_id !== orderId) {
+        throw new Error("Idempotency key already used for another order");
+      }
+
+      await client.query("COMMIT");
+
+      return existingPayment;
+    }
 
     const orderResult = await client.query(
       `SELECT *
@@ -49,10 +69,10 @@ async function processPayment(orderId, paymentOutcome) {
     if (paymentOutcome === "FAILED") {
       const paymentResult = await client.query(
         `INSERT INTO payments
-                 (order_id, amount, status)
-                 VALUES ($1, $2, 'FAILED')
+                 (order_id, amount, status, idempotency_key)
+                 VALUES ($1, $2, 'FAILED', $3)
                  RETURNING *`,
-        [order.id, order.amount],
+        [order.id, order.amount, idempotencyKey],
       );
 
       await client.query("COMMIT");
@@ -84,10 +104,10 @@ async function processPayment(orderId, paymentOutcome) {
 
     const paymentResult = await client.query(
       `INSERT INTO payments
-             (order_id, amount, status, payment_id)
-             VALUES ($1, $2, 'SUCCESS', $3)
+             (order_id, amount, status, payment_id, idempotency_key)
+             VALUES ($1, $2, 'SUCCESS', $3, $4)
              RETURNING *`,
-      [order.id, order.amount, paymentId],
+      [order.id, order.amount, paymentId, idempotencyKey],
     );
 
     await client.query(
