@@ -12,5 +12,6 @@ app.get("/health", (req, res) => {
 
 app.use("/api/products", productRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/orders", require("./routes/orderRoutes"));
 
 module.exports = app;

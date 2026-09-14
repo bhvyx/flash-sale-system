@@ -34,8 +34,13 @@ async function getUserReservations(userId) {
   return await reservationRepository.getUserReservations(userId);
 }
 
+async function expireReservation(id) {
+  return await reservationRepository.expireReservation(id);
+}
+
 module.exports = {
   createReservation,
   getReservationById,
   getUserReservations,
+  expireReservation,
 };

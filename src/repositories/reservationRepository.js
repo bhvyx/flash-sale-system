@@ -104,10 +104,78 @@ async function updateStock(id, availableStock) {
   return result.rows[0];
 }
 
+async function expireReservation(id) {
+  const client = await pool.connect();
+
+  try {
+    await client.query("BEGIN");
+
+    const reservationResult = await client.query(
+      `SELECT *
+             FROM reservations
+             WHERE id = $1
+             FOR UPDATE`,
+      [id],
+    );
+
+    const reservation = reservationResult.rows[0];
+
+    if (!reservation) {
+      throw new Error("Reservation not found");
+    }
+
+    if (reservation.status !== "ACTIVE") {
+      await client.query("ROLLBACK");
+      return reservation;
+    }
+
+    const productResult = await client.query(
+      `SELECT *
+             FROM products
+             WHERE id = $1
+             FOR UPDATE`,
+      [reservation.product_id],
+    );
+
+    const product = productResult.rows[0];
+
+    if (!product) {
+      throw new Error("Product not found");
+    }
+
+    await client.query(
+      `UPDATE products
+             SET available_stock = available_stock + $1,
+                 updated_at = NOW()
+             WHERE id = $2`,
+      [reservation.quantity, reservation.product_id],
+    );
+
+    const updatedReservationResult = await client.query(
+      `UPDATE reservations
+             SET status = 'EXPIRED',
+                 updated_at = NOW()
+             WHERE id = $1
+             RETURNING *`,
+      [id],
+    );
+
+    await client.query("COMMIT");
+
+    return updatedReservationResult.rows[0];
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
 module.exports = {
   createReservationTransaction,
   createReservation,
   getReservationById,
   getUserReservations,
   updateStock,
+  expireReservation,
 };
