@@ -42,32 +42,12 @@ async function createOrderTransaction(reservationId) {
       throw new Error("Product not found");
     }
 
-    if (product.total_stock < reservation.quantity) {
-      throw new Error("Insufficient inventory");
-    }
-
     const amount = Number(product.price) * reservation.quantity;
-
-    await client.query(
-      `UPDATE products
-             SET total_stock = total_stock - $1,
-                 updated_at = NOW()
-             WHERE id = $2`,
-      [reservation.quantity, reservation.product_id],
-    );
-
-    await client.query(
-      `UPDATE reservations
-             SET status = 'PURCHASED',
-                 updated_at = NOW()
-             WHERE id = $1`,
-      [reservationId],
-    );
 
     const orderResult = await client.query(
       `INSERT INTO orders
              (user_id, reservation_id, product_id, quantity, amount, status)
-             VALUES ($1, $2, $3, $4, $5, 'CONFIRMED')
+             VALUES ($1, $2, $3, $4, $5, 'PENDING')
              RETURNING *`,
       [
         reservation.user_id,
