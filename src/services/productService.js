@@ -1,4 +1,5 @@
 const productRepository = require("../repositories/productRepository");
+const AppError = require("../utils/AppError");
 
 async function createProduct(name, price, totalStock) {
   return await productRepository.createProduct(name, price, totalStock);
@@ -12,7 +13,7 @@ async function getProductById(id) {
   const product = await productRepository.getProductById(id);
 
   if (!product) {
-    throw new Error("Product not found");
+    throw new AppError("Product not found", 404);
   }
 
   return product;

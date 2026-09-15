@@ -54,9 +54,23 @@ async function expireReservation(req, res, next) {
   }
 }
 
+async function cancelReservation(req, res, next) {
+  try {
+    const reservation = await reservationService.cancelReservation(
+      req.params.id,
+      req.user.id,
+    );
+
+    res.status(200).json(reservation);
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   createReservation,
   getReservationById,
   getUserReservations,
   expireReservation,
+  cancelReservation,
 };

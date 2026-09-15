@@ -5,6 +5,12 @@ async function processPayment(req, res, next) {
     const { orderId, outcome } = req.body;
     const idempotencyKey = req.headers["idempotency-key"];
 
+    if (!idempotencyKey) {
+      return res.status(400).json({
+        error: "Idempotency-Key header is required",
+      });
+    }
+
     const payment = await paymentService.processPayment(
       orderId,
       outcome,

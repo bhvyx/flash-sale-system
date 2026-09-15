@@ -1,12 +1,13 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const userRepository = require("../repositories/userRepository");
+const AppError = require("../utils/AppError");
 
 async function register(email, password) {
   const existingUser = await userRepository.getUserByEmail(email);
 
   if (existingUser) {
-    throw new Error("Email already registered");
+    throw new AppError("Email already registered", 409);
   }
 
   const passwordHash = await bcrypt.hash(password, 12);
@@ -18,19 +19,20 @@ async function login(email, password) {
   const user = await userRepository.getUserByEmail(email);
 
   if (!user) {
-    throw new Error("Invalid email or password");
+    throw new AppError("Invalid email or password", 401);
   }
 
   const passwordValid = await bcrypt.compare(password, user.password_hash);
 
   if (!passwordValid) {
-    throw new Error("Invalid email or password");
+    throw new AppError("Invalid email or password", 401);
   }
 
   const token = jwt.sign(
     {
       userId: user.id,
       email: user.email,
+      isAdmin: user.is_admin,
     },
     process.env.JWT_SECRET,
     {
@@ -43,6 +45,7 @@ async function login(email, password) {
     user: {
       id: user.id,
       email: user.email,
+      isAdmin: user.is_admin,
     },
   };
 }

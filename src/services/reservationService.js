@@ -27,7 +27,7 @@ async function createReservation(userId, productId, quantity) {
   }
 }
 
-async function getReservationById(id) {
+async function getReservationById(id, userId) {
   const reservation = await reservationRepository.getReservationById(
     id,
     userId,
@@ -48,9 +48,14 @@ async function expireReservation(id) {
   return await reservationRepository.expireReservation(id);
 }
 
+async function cancelReservation(id, userId) {
+  return await reservationRepository.cancelReservation(id, userId);
+}
+
 module.exports = {
   createReservation,
   getReservationById,
   getUserReservations,
   expireReservation,
+  cancelReservation,
 };

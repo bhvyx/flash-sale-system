@@ -17,6 +17,6 @@ router.post(
 );
 router.get("/user/:userId", reservationController.getUserReservations);
 router.get("/:id", reservationController.getReservationById);
-router.post("/:id/expire", reservationController.expireReservation);
+router.post("/:id/cancel", reservationController.cancelReservation);
 
 module.exports = router;
