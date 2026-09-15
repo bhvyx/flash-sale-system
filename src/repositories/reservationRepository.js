@@ -1,4 +1,5 @@
 const pool = require("../db");
+const AppError = require("../utils/AppError");
 
 async function createReservationTransaction(
   userId,
@@ -22,11 +23,11 @@ async function createReservationTransaction(
     const product = productResult.rows[0];
 
     if (!product) {
-      throw new Error("Product not found");
+      throw new AppError("Product not found", 404);
     }
 
     if (product.available_stock < quantity) {
-      throw new Error("Not enough stock");
+      throw new AppError("Not enough stock", 400);
     }
 
     await client.query(

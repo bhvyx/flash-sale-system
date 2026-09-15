@@ -1,5 +1,6 @@
 const reservationRepository = require("../repositories/reservationRepository");
 const { acquireLockWithRetry, releaseLock } = require("../redis/lock");
+const AppError = require("../utils/AppError");
 
 async function createReservation(userId, productId, quantity) {
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
@@ -12,7 +13,7 @@ async function createReservation(userId, productId, quantity) {
   );
 
   if (!lock) {
-    throw new Error("Inventory is busy, please retry");
+    throw new AppError("Inventory is busy, please retry", 503);
   }
 
   try {
@@ -34,7 +35,7 @@ async function getReservationById(id, userId) {
   );
 
   if (!reservation) {
-    throw new Error("Reservation not found");
+    throw new AppError("Reservation not found", 404);
   }
 
   return reservation;

@@ -1,4 +1,5 @@
 const pool = require("../db");
+const AppError = require("../utils/AppError");
 
 async function processPayment(orderId, paymentOutcome, idempotencyKey, userId) {
   const client = await pool.connect();
@@ -18,7 +19,10 @@ async function processPayment(orderId, paymentOutcome, idempotencyKey, userId) {
 
     if (existingPayment) {
       if (existingPayment.order_id !== orderId) {
-        throw new Error("Idempotency key already used for another order");
+        throw new AppError(
+          "Idempotency key already used for another order",
+          409,
+        );
       }
 
       await client.query("COMMIT");
@@ -38,7 +42,7 @@ async function processPayment(orderId, paymentOutcome, idempotencyKey, userId) {
     const order = orderResult.rows[0];
 
     if (!order) {
-      throw new Error("Order not found");
+      throw new AppError("Order not found", 404);
     }
 
     if (order.status !== "PENDING") {
