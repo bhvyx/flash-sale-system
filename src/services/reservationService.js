@@ -36,7 +36,10 @@ async function createReservation(userId, productId, quantity) {
 }
 
 async function getReservationById(id) {
-  const reservation = await reservationRepository.getReservationById(id);
+  const reservation = await reservationRepository.getReservationById(
+    id,
+    userId,
+  );
 
   if (!reservation) {
     throw new Error("Reservation not found");

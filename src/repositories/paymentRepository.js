@@ -1,6 +1,6 @@
 const pool = require("../db");
 
-async function processPayment(orderId, paymentOutcome, idempotencyKey) {
+async function processPayment(orderId, paymentOutcome, idempotencyKey, userId) {
   const client = await pool.connect();
 
   try {
@@ -30,8 +30,9 @@ async function processPayment(orderId, paymentOutcome, idempotencyKey) {
       `SELECT *
              FROM orders
              WHERE id = $1
+             AND user_id = $2
              FOR UPDATE`,
-      [orderId],
+      [orderId, userId],
     );
 
     const order = orderResult.rows[0];

@@ -2,7 +2,8 @@ const reservationService = require("../services/reservationService");
 
 async function createReservation(req, res) {
   try {
-    const { userId, productId, quantity } = req.body;
+    const { productId, quantity } = req.body;
+    const userId = req.user.id;
 
     const reservation = await reservationService.createReservation(
       userId,
@@ -22,6 +23,7 @@ async function getReservationById(req, res) {
   try {
     const reservation = await reservationService.getReservationById(
       req.params.id,
+      req.user.id,
     );
 
     res.status(200).json(reservation);

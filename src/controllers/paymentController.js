@@ -9,6 +9,7 @@ async function processPayment(req, res) {
       orderId,
       outcome,
       idempotencyKey,
+      req.user.id,
     );
 
     res.status(201).json(payment);

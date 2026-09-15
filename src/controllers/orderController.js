@@ -4,7 +4,7 @@ async function createOrder(req, res) {
   try {
     const { reservationId } = req.body;
 
-    const order = await orderService.createOrder(reservationId);
+    const order = await orderService.createOrder(reservationId, req.user.id);
 
     res.status(201).json(order);
   } catch (error) {
@@ -16,7 +16,7 @@ async function createOrder(req, res) {
 
 async function getOrderById(req, res) {
   try {
-    const order = await orderService.getOrderById(req.params.id);
+    const order = await orderService.getOrderById(req.params.id, req.user.id);
 
     res.status(200).json(order);
   } catch (error) {
@@ -28,7 +28,7 @@ async function getOrderById(req, res) {
 
 async function getUserOrders(req, res) {
   try {
-    const orders = await orderService.getUserOrders(req.params.userId);
+    const orders = await orderService.getUserOrders(req.user.id);
 
     res.status(200).json(orders);
   } catch (error) {

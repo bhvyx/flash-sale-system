@@ -1,6 +1,6 @@
 const paymentRepository = require("../repositories/paymentRepository");
 
-async function processPayment(orderId, paymentOutcome, idempotencyKey) {
+async function processPayment(orderId, paymentOutcome, idempotencyKey, userId) {
   if (!orderId) {
     throw new Error("Order ID is required");
   }
@@ -17,6 +17,7 @@ async function processPayment(orderId, paymentOutcome, idempotencyKey) {
     orderId,
     paymentOutcome,
     idempotencyKey,
+    userId,
   );
 }
 

@@ -68,12 +68,13 @@ async function createReservation(userId, productId, quantity, expiresAt) {
   return result.rows[0];
 }
 
-async function getReservationById(id) {
+async function getReservationById(id, userId) {
   const result = await pool.query(
     `SELECT *
          FROM reservations
-         WHERE id = $1`,
-    [id],
+         WHERE id = $1
+         AND user_id = $2`,
+    [id, userId],
   );
 
   return result.rows[0];

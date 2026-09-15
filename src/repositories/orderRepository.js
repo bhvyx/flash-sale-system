@@ -1,6 +1,6 @@
 const pool = require("../db");
 
-async function createOrderTransaction(reservationId) {
+async function createOrderTransaction(reservationId, userId) {
   const client = await pool.connect();
 
   try {
@@ -10,8 +10,9 @@ async function createOrderTransaction(reservationId) {
       `SELECT *
              FROM reservations
              WHERE id = $1
+             AND user_id = $2
              FOR UPDATE`,
-      [reservationId],
+      [reservationId, userId],
     );
 
     const reservation = reservationResult.rows[0];
@@ -69,12 +70,13 @@ async function createOrderTransaction(reservationId) {
   }
 }
 
-async function getOrderById(id) {
+async function getOrderById(id, userId) {
   const result = await pool.query(
     `SELECT *
          FROM orders
-         WHERE id = $1`,
-    [id],
+         WHERE id = $1
+         AND user_id = $2`,
+    [id, userId],
   );
 
   return result.rows[0];

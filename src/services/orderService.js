@@ -1,15 +1,15 @@
 const orderRepository = require("../repositories/orderRepository");
 
-async function createOrder(reservationId) {
+async function createOrder(reservationId, userId) {
   if (!reservationId) {
     throw new Error("Reservation ID is required");
   }
 
-  return await orderRepository.createOrderTransaction(reservationId);
+  return await orderRepository.createOrderTransaction(reservationId, userId);
 }
 
-async function getOrderById(id) {
-  const order = await orderRepository.getOrderById(id);
+async function getOrderById(id, userId) {
+  const order = await orderRepository.getOrderById(id, userId);
 
   if (!order) {
     throw new Error("Order not found");
