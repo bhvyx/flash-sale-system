@@ -2,14 +2,6 @@ const reservationRepository = require("../repositories/reservationRepository");
 const { acquireLockWithRetry, releaseLock } = require("../redis/lock");
 
 async function createReservation(userId, productId, quantity) {
-  if (!userId || !productId || quantity === undefined) {
-    throw new Error("Missing required fields");
-  }
-
-  if (!Number.isInteger(quantity) || quantity <= 0) {
-    throw new Error("Quantity must be a positive integer");
-  }
-
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
   const lock = await acquireLockWithRetry(

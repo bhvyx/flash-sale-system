@@ -1,10 +1,6 @@
 const orderRepository = require("../repositories/orderRepository");
 
 async function createOrder(reservationId, userId) {
-  if (!reservationId) {
-    throw new Error("Reservation ID is required");
-  }
-
   return await orderRepository.createOrderTransaction(reservationId, userId);
 }
 
