@@ -9,7 +9,7 @@ async function getOrderById(id, userId) {
   const order = await orderRepository.getOrderById(id, userId);
 
   if (!order) {
-    throw new Error("Order not found");
+    throw new AppError("Order not found", 404);
   }
 
   return order;
