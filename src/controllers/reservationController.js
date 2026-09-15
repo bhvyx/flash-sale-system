@@ -1,6 +1,6 @@
 const reservationService = require("../services/reservationService");
 
-async function createReservation(req, res) {
+async function createReservation(req, res, next) {
   try {
     const { productId, quantity } = req.body;
     const userId = req.user.id;
@@ -13,13 +13,11 @@ async function createReservation(req, res) {
 
     res.status(201).json(reservation);
   } catch (error) {
-    res.status(400).json({
-      error: error.message,
-    });
+    next(error);
   }
 }
 
-async function getReservationById(req, res) {
+async function getReservationById(req, res, next) {
   try {
     const reservation = await reservationService.getReservationById(
       req.params.id,
@@ -28,27 +26,23 @@ async function getReservationById(req, res) {
 
     res.status(200).json(reservation);
   } catch (error) {
-    res.status(404).json({
-      error: error.message,
-    });
+    next(error);
   }
 }
 
-async function getUserReservations(req, res) {
+async function getUserReservations(req, res, next) {
   try {
     const reservations = await reservationService.getUserReservations(
-      req.params.userId,
+      req.user.id,
     );
 
     res.status(200).json(reservations);
   } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
+    next(error);
   }
 }
 
-async function expireReservation(req, res) {
+async function expireReservation(req, res, next) {
   try {
     const reservation = await reservationService.expireReservation(
       req.params.id,
@@ -56,9 +50,7 @@ async function expireReservation(req, res) {
 
     res.status(200).json(reservation);
   } catch (error) {
-    res.status(400).json({
-      error: error.message,
-    });
+    next(error);
   }
 }
 
